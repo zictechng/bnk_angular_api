@@ -1,0 +1,335 @@
+Angular authentication application
+
+This project works successfully. Try practice this to get started
+
+
+-- create a folder for your project
+angular_app, open with vscode, then create another folder
+as backend, cd backend and write
+
+"npm init --yes", to initialized nodejs package
+
+-- then install other dependence
+npm install express body-parser --save
+
+Now, create a new file call server.js inside the backend folder
+Then write all the code in the file
+
+Good practice, have a separate folder for all your routes
+so, create new folder for all routes inside the backend
+ 
+-- create file call api.js and define all the api endpoints
+ Then test.
+
+-- create a database for storing all your value
+mongodb://localhost:27017
+
+mongodb+srv://abel:<password>@cluster0.ot6vtav.mongodb.net/?retryWrites=true&w=majority
+w9ouvZgSdAbDU8NW
+
+--install mongoose
+npm install --save mongoose
+
+Then create a folder call models, then create model file inside the folder
+"user.js" then write all the code to create the model
+
+-- Connect to mongoose db
+
+Go to api.js routes to do the connection
+
+-- then, write the api code for your application
+
+
+-- create api for registration of new user
+--create api for user login
+Test it with post man to see if is working
+
+-- create api for fetching regular and specails events
+
+--Now start the frontend app, generate using angular CLI
+
+1, generate new angular app using the CLI
+2, Add components and routing
+3, Develop registration UI and service
+4, Develop login UI and service
+5, Develop event UI and service
+6, Add authentication for user login
+7, Login/ Logout button UI logic.
+
+-- let start
+ng new frontend --routing
+this will generate new angular project
+
+-- start the project
+ng serve -o
+this will start the project and open it in broswer
+
+-- add the component for the pages, home, event, login and register
+-- set up routing for the pages
+go to app.routing.module.ts and add the route
+
+-- Buid UI
+Use boostrap or any css you like
+
+To use boostrap, visit getboostrap.com, click on get started
+copy the css cdn link and the javascript
+and paste it in index.html file
+
+Go to app.component.html and add your UI design as you want
+
+two way binding, we need form module
+go to app modul and import form module and reactiveform module
+
+--code the register component file
+register.component.ts and add some code
+
+-- connecting the frontend to the backend api 
+
+What you need to do is to create a service and add some code
+that will receive data from your form and then send to the api endpoint
+
+-- create service
+Create service to get user data for registration form to send to api
+for this we need to use http module, we need to import it in app.module
+
+Then generate the service for user registeration
+Run command "ng g s auth" to generate the service
+
+Then go to the service file and do some code in it
+In this file, we need to make http request to the backend api
+
+After writing the code in the service.ts file, we need to connect it to the component
+Go to the register.component.ts file and import the service
+
+-- then also add the service in app.module.ts
+put it inside the provide [];
+
+-- cors
+ensure to install cors in your project
+This should be install in your backend project
+
+npm install --save cors
+
+then go to server.js file and import the cors
+after the body-parser import it
+
+Then after app = express(), call the cors to action
+app.use(cors());
+
+-- after setting up the service, you need to connect it to the frontend UI
+First import the service in the ts file of the page where you want to use it
+second, inside the constructor write (private auth, service name)
+
+Then inside your method, call the service and pass the data into it
+
+loginUser(){
+........... do the code here
+}
+
+-- event page
+1, create the service
+"ng g s event"
+2, add the event service to provider array in app.module.ts file
+3, make http call to fetch data from the backend via this event service
+ -- open the event service, import {httpClient} from '@angular/common/http';
+Then inject it into the contructor
+(private http: HttpClient) 
+
+4, create the property that point to the backend api 
+private _eventUrl = "http://localhost:3000/api/events";
+ add all here
+
+5, create a method to send the communication to the endpoint
+getEvents(){
+return this.http.get<any>(this._eventsUrl)
+}
+
+remember, the return data as observable so we need to subcribe to them in the commponent
+ -- Now, open event.component.ts file
+import the event service and then inject it inside the constructor too.
+
+-- now create new variable/property to hold the event returned
+by the endpoint via the event service
+"events = []"
+
+Then, we need to subcribe to it inside the 
+ngOnInit(){
+
+}
+
+OR you can create a new separate function to subcribe and then
+call it inside the 
+ngOnInit(){
+
+}
+
+-- Then showing this result in frontend html page
+Design your UI as per your need and do looping for the
+display of the result
+
+-- here is an example
+
+<div class="row mt-5">
+    <div class="col-md-4 mb-3" *ngFor="let event of events">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">{{event.name}}</h5>
+                <p class="card-text">{{event.description}}</p>
+                <a href="#" class="btn btn-primary">Buy Tickets</a>
+            </div>
+            <div class="card-footer text-muted">
+                {{event.date | date:'shortDate'}}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+-- Generating token for register/login user
+We are going to use webtoken (JWT) Jsonwebtokens for this operation
+
+visit http://jwt.io/ for more details
+
+-- install jwt in your backend project
+npm install jsonwebtoken --save
+
+--Then open routes folder, api.js file in the server folder and import it
+const jwt = require('jwt') after express()
+
+Next, generate token in the register api, move to the api route and add some code to do this
+
+Do same in login, this is for login authentication.
+
+--storing the token in localstorage
+
+we can do this by calling localStorage.setItem('token', res.token)
+Go to the register.component.ts file in the frontend folder
+and write this code.
+
+Do same in login ts file
+
+-- navigating to new page after successful login
+
+Go to the register.ts file and import Router and also inject it in constructor
+Then navigate with this:
+
+"this._router.navigate(['/spcial'])";
+
+Do same in login.ts file too
+
+-- protecting routes with token base system.
+called "route guard"
+
+-- create function in auth.service to check if user loggedIn
+or to store user login details to use to check in the auth.guard
+loggedIn(){
+  return !! localStorage.getItem('token'); // then !! mean is a boolean operation to return
+  // true or false
+}
+
+Only user with vilidated token can view a particular page
+ We need to generate a service to do this.
+Go to your main project frontend then run ng g guard auth
+
+Then go to auth.service to create a method/function to check
+if token exist in localstorage/broswer
+
+After creating the method, go to auth guard and use it to
+control navigation
+
+Open the auth.guard.ts and do the code in there
+Also import the authservice inside the auth.guard.ts file
+
+Just readwrite the CanActivate block of this page
+
+First, Inject the authService and router in the consructor
+
+Then, add the route guard in the app.module.ts file
+open the app.module.ts, add it in the provider array. 
+let it come after the AuthService
+
+And then add it in the route modules of the application
+Open the app.routing.module.ts file and add the guard in the 
+route that you want to protect
+
+-- server token verification
+this is important to protect token generate by server so that
+anybody can not manipute the token
+
+--Using angular http intecetor will help to achived this
+So, we need to generate a service for this
+"ng g s token-interceptor"
+
+Then open the file and import http interceptor.service.ts
+
+Then add this "implements HttpInterceptor" to the class interface
+
+Then create a method/function to run the inteceptors
+
+Then register this in the app.module
+and also import the token inteceptor services too
+
+Then add the serices that you just imported to the provider array.
+
+-- Now go to the auth.service.ts file and create new method/function
+to get token from localstorage.
+this function will fetch the actual token to compare if is valid or not
+
+-- Inmport this in the token interceptor
+open the token-interceptor.service.ts file and import authService
+
+Then add "Injector" to Injectable
+Also inject it into the constructor (private Injector: Injector)
+
+-- creating middleware to verify the webtoken
+
+creat a verify webtoken middleware in the backend
+
+open routes/api.js and create a function to verify middleware token
+
+Then add the middleware function "verifyToken" to the route
+that you want to protect
+
+in the api.js in the backend, locate the api route that you
+want to protect with this middleware function and add it
+to the route.
+
+Example:
+
+router.get('/dashboard', verifyToken, (req, res) =>{
+    res.send('from API route')
+});
+
+-- handle the 401 error status
+go to the frontend folder, special event.ts file
+instead of displaying the error in console.log
+let handle it better, write some more code to do this
+
+--logout button
+Since our nav bar is in app.component so, let open the 
+app.component.ts file and write some
+
+First import the authService
+Then inject it inside the contructor
+Then open the app.component.html file and do some logic
+for rendering login and logout button
+
+--Logout implementation
+add the condition in the nav bar html page to show logout button
+when user is logged in then create a function/method in 
+auth.service.ts for logout
+
+open the auth.service and create the function for logout
+import router and inject it so that you can navigate back to home page
+after user is logout.
+
+
+
+
+
+
+
+
+
+
+

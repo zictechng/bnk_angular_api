@@ -1,10 +1,36 @@
 Angular authentication application
 
+This project works successfully. Try practice this to get started
+
 this.router.navigate(['/home']).then(() =>{
 window.location.reload()
 }); this will refresh/reload your page
 
-This project works successfully. Try practice this to get started
+ng g c components/dashboard/transfer-f
+und
+
+How to add boostrap
+1, install it buy npm install bootstrap --save
+npm install jquery --save
+npm install popper.js --save
+
+2, src/style.css
+@import "~bootstrap/dist/css/bootstrap.css";
+
+3, import it in angular.json file
+angular.json
+
+....
+      "styles": [
+        "node_modules/bootstrap/dist/css/bootstrap.min.css",
+        "src/styles.css"
+      ],
+      "scripts": [
+          "node_modules/jquery/dist/jquery.min.js",
+          "node_modules/bootstrap/dist/js/bootstrap.min.js"
+      ]
+.....
+
 
 
 -- create a folder for your project

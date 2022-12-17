@@ -1,5 +1,9 @@
 Angular authentication application
 
+this.router.navigate(['/home']).then(() =>{
+window.location.reload()
+}); this will refresh/reload your page
+
 This project works successfully. Try practice this to get started
 
 

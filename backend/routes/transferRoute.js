@@ -9,7 +9,7 @@ const TransferFund = require('../models/fundTransfer');
 
 const mongoose = require('mongoose');
 
-const db = "mongodb://localhost:27017/bank_appdb";
+const db = "mongodb+srv://bank_user:rWKBghDmKHhryTPY@cluster0.b8zfxbx.mongodb.net/bnk_appDB?retryWrites=true&w=majority";
 
 mongoose.set('strictQuery', false); // this is to suppress some db error
 

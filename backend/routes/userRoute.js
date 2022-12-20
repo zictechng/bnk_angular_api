@@ -8,7 +8,7 @@ const User = require('../models/user');
 
 const mongoose = require('mongoose');
 
-const db = "mongodb://localhost:27017/bank_appdb";
+const db = "mongodb+srv://bank_user:rWKBghDmKHhryTPY@cluster0.b8zfxbx.mongodb.net/bnk_appDB?retryWrites=true&w=majority";
 
 mongoose.set('strictQuery', false); // this is to suppress some db error
 
@@ -105,9 +105,10 @@ router.post('/login', (req, res) =>{
           let payload = {subject: user._id} // subject is the key, registerUser._id the value
           let token = jwt.sign(payload, 'secretkey'); // 'secretkey' can be anything of your choice and you can put it in .env file
           //res.status(200).send(registeredUser);
-          //console.log(token)
+          //console.log(user);
          
-          res.status(200).send({token});
+          //res.status(200).send({token});
+          res.status(200).send({token:token,userData:user});
             }
          }
         }

@@ -108,7 +108,7 @@ router.post('/login', (req, res) =>{
           //console.log(user);
          
           //res.status(200).send({token});
-          res.status(200).send({token:token,userData:user});
+          res.status(200).send({token:token,userData:user.name});
             }
          }
         }

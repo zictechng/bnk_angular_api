@@ -1,5 +1,7 @@
 Angular authentication application
 
++2348037250238 whatsapp, contact me on whatsapp for more details
+
 This project works successfully. Try practice this to get started
 
 this.router.navigate(['/home']).then(() =>{

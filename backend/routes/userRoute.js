@@ -5,11 +5,12 @@ const router = express.Router();
 
 // import user model here
 const User = require('../models/user');
+const SupportTicket = require('../models/support');
 
 const mongoose = require('mongoose');
 
-const db = "mongodb+srv://bank_user:rWKBghDmKHhryTPY@cluster0.b8zfxbx.mongodb.net/bnk_appDB?retryWrites=true&w=majority";
-
+//const db = "mongodb+srv://bank_user:rWKBghDmKHhryTPY@cluster0.b8zfxbx.mongodb.net/bnk_appDB?retryWrites=true&w=majority";
+const db = "mongodb://localhost:27017/bank_appdb";
 mongoose.set('strictQuery', false); // this is to suppress some db error
 
 // db connection here
@@ -20,8 +21,6 @@ mongoose.connect(db, err =>{
         console.log('database connected to mongodb')
     }
 });
-
-
 
 // route 1
 router.get('/', (req, res) =>{
@@ -77,11 +76,42 @@ router.post('/register', (req, res) =>{
     })
     });
 
+// route support ticket
+router.post('/support', async(req, res) =>{
+    let ticketData = req.body;
+    const userId = req.body.tick_createdBy;
+    let ticket = new SupportTicket(ticketData);
+    try {
+       
+         let userDetails = await User.findOne({_id: userId}); // here I am checking if user exist then I will get user details
+         
+         if(!userDetails){
+            res.status(402).send({msg: '402'});
+            // user account not found then show error
+         }
+         else if(req.body.tick_subject == '' || req.body.tick_subject == null || req.body.tick_sender_name == '' || req.body.tick_sender_name == null
+         || req.body.tick_message == '' || req.body.tick_message == null){
+            res.status(404).send({msg: '404'}); // cot code reguired
+            console.log('fields required')
+         }
+         else if(userDetails){
+            resultTicket = await ticket.save();
+            res.status(200).send({msg: '200'});
+    
+         }
+        //console.log(req.body);
+        //fundsend.createdBy = (User._id); // get current user ID
+        } catch (err) {
+            res.status(500).send({msg: '500'})
+        }
+    });
+
 //login route
 router.post('/login', (req, res) =>{
     let userData = req.body;
     //check if user email exist in database
     User.findOne({email: userData.email}, (error, user) =>{
+       // console.log(user);
         if(error){
             console.log(error)
         }
@@ -102,13 +132,11 @@ router.post('/login', (req, res) =>{
             //everything is fine
             //res.status(200).send(user);
             // generate jwt token
-          let payload = {subject: user._id} // subject is the key, registerUser._id the value
+          let payload = {subject: user._id} // subject is the key, User._id the value
           let token = jwt.sign(payload, 'secretkey'); // 'secretkey' can be anything of your choice and you can put it in .env file
-          //res.status(200).send(registeredUser);
-          //console.log(user);
-         
+          const {password, ...others} = user._doc; // this will remove password from the details send to server.
           //res.status(200).send({token});
-          res.status(200).send({token:token,userData:user.name});
+          res.status(200).send({token:token,userData:others});
             }
          }
         }

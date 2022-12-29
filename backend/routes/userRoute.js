@@ -2,7 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 
 const router = express.Router();
-
+const multer = require('multer');
 // import user model here
 const User = require('../models/user');
 const SupportTicket = require('../models/support');
@@ -21,6 +21,17 @@ mongoose.connect(db, err =>{
         console.log('database connected to mongodb')
     }
 });
+
+const storage = multer.diskStorage({
+    destination:(req, file, callBack) =>{
+        callBack(null, 'uploads')
+    },
+    filename:(req, file, callBack) =>{
+        callBack(null, `nameOfImage_${file.originalname}`)
+    }
+})
+var upload = multer({ storage: storage});
+
 
 // route 1
 router.get('/', (req, res) =>{
@@ -106,6 +117,22 @@ router.post('/support', async(req, res) =>{
         }
     });
 
+router.post('/upload', upload.single('file'), (req, res, next) =>{
+        const file = req.file;
+        console.log(req.file.filename);
+        console.log(req.body.my_name);
+        console.log(file.filename);
+        try {
+            if(!file){
+                res.status(404).send({msg: '404'}); // cot code reguired
+                   return next(error)
+                }
+                res.send(file);
+        } catch (err) {
+            res.status(500).send({msg: '500'})
+        }
+    })
+    
 //login route
 router.post('/login', (req, res) =>{
     let userData = req.body;

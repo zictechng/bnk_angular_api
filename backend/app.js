@@ -16,6 +16,12 @@ app.use(cors());
 
 app.use(bodyParser.json());
 
+// Function to serve all static files
+// inside public directory.
+app.use(express.static('public'));  
+
+app.use('public/images', express.static('images')); 
+
 // use the route api here
 app.use('/api', api);
 app.use('/api', transferRoute);

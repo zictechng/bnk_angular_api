@@ -9,6 +9,7 @@ const SupportTicket = require('../models/support');
 
 const mongoose = require('mongoose');
 
+
 //const db = "mongodb+srv://bank_user:rWKBghDmKHhryTPY@cluster0.b8zfxbx.mongodb.net/bnk_appDB?retryWrites=true&w=majority";
 const db = "mongodb://localhost:27017/bank_appdb";
 mongoose.set('strictQuery', false); // this is to suppress some db error
@@ -21,16 +22,6 @@ mongoose.connect(db, err =>{
         console.log('database connected to mongodb')
     }
 });
-
-const storage = multer.diskStorage({
-    destination:(req, file, callBack) =>{
-        callBack(null, 'uploads')
-    },
-    filename:(req, file, callBack) =>{
-        callBack(null, `nameOfImage_${file.originalname}`)
-    }
-})
-var upload = multer({ storage: storage});
 
 
 // route 1
@@ -117,17 +108,44 @@ router.post('/support', async(req, res) =>{
         }
     });
 
-router.post('/upload', upload.single('file'), (req, res, next) =>{
+const uploadLocation = 'public/images'; // this is the image store location in the project
+const storage = multer.diskStorage({
+    destination:(req, file, callBack) =>{
+        callBack(null, uploadLocation)
+    },
+    filename:(req, file, callBack) =>{
+        var img_name = Date.now() + '.' + file.mimetype.split('/')[1];
+        callBack(null, img_name)
+    }
+});
+
+var upload = multer({ storage: storage});
+
+router.post('/upload', upload.single('file'), async(req, res, next) =>{
         const file = req.file;
-        console.log(req.file.filename);
-        console.log(req.body.my_name);
-        console.log(file.filename);
+        const filter = { _id: req.body.user_id };
+        // console.log(req.file.filename);
+        // console.log(req.body.user_id);
+        // console.log(file.filename);
+        
         try {
-            if(!file){
+            const userID = await User.findOne({_id: req.body.user_id});
+            if(!userID){
+            res.status(402).send({msg: '402'});
+            // user account not found then show error
+            }
+            else if(!file){
                 res.status(404).send({msg: '404'}); // cot code reguired
                    return next(error)
                 }
-                res.send(file);
+            const updateUserPotoDoc = {
+                $set: {
+                    photo: '/images/'+file.filename
+                    },
+                };
+        const result = await User.updateOne(filter, updateUserPotoDoc);
+         res.send({file, result});
+
         } catch (err) {
             res.status(500).send({msg: '500'})
         }
@@ -169,5 +187,7 @@ router.post('/login', (req, res) =>{
         }
     })
 })
+
+
 
 module.exports = router;

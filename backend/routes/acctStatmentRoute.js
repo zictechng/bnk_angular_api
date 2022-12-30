@@ -25,7 +25,7 @@ mongoose.connect(db, err =>{
 // get account statement here..
 router.get("/statement", async(req, res) =>{
     try {
-        const acctStatement = await TransferFund.find();
+        const acctStatement = await TransferFund.find().sort( { createdOn: -1 } );
         res.status(200).send(acctStatement);
     } catch (err) {
         res.status(500).json(err);
@@ -37,7 +37,7 @@ router.get("/statement", async(req, res) =>{
 // get account history statement here..
 router.get("/history", async(req, res) =>{
     try {
-        const acctStatement = await TransferFund.find();
+        const acctStatement = await TransferFund.find().sort( { createdOn: -1 } );
         res.status(200).send(acctStatement);
     } catch (err) {
         res.status(500).json(err);
@@ -51,10 +51,6 @@ router.get("/profile/:id", async(req, res) =>{
    try {
         const userDetails = await User.findOne({_id: userId});
        
-        // const userTransacPending = await TransferFund.aggregate([ 
-        //     { $match:{ createdBy: userId}}, 
-        //     { $group:{ _id:'$transaction_status', totalAmount: { $sum: '$amount' } } 
-        // }]);
         const userTransacSuccess = await TransferFund.aggregate([ 
             { $match:{ createdBy: userId}}, 
             { $group:{ _id: '$transaction_status', totalAmount: { $sum: '$amount' } } 
@@ -65,6 +61,28 @@ router.get("/profile/:id", async(req, res) =>{
         res.status(200).send({others, userTransacSuccess});
         
     } catch (err) {
+        res.status(500).json(err.message);
+        console.log(err.message);
+    }
+});
+
+// get current user account details/profile here..
+router.get("/delete-history/:id", async(req, res) =>{
+    let userId = req.params.id;
+   try {
+    // find record by the post ID
+    const query = TransferFund.findOne(req.params.id);
+
+    // delete the record found here
+    const result = await TransferFund.deleteOne(query);
+
+    if (result.deletedCount === 1) {
+     res.status(200).send({msg: '200'});
+    } else {
+        res.status(403).send({msg: '403'});
+        console.log("No documents matched the query id.");
+    }
+        } catch (err) {
         res.status(500).json(err.message);
         console.log(err.message);
     }

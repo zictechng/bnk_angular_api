@@ -23,7 +23,6 @@ const transferSchema = new Schema({
     //createdBy: {type: Schema.Types.ObjectId, ref: 'user'}, // this will get the current user ID and save it 
     // with the data when creating this details.
     createdOn: {type: Date, default: Date.now},
-    selected: {type: Boolean },
 });
 
 module.exports = mongoose.model('fundtransfer', transferSchema);

@@ -9,6 +9,7 @@ const User = require('../models/user');
 const TransferFund = require('../models/fundTransfer');
 
 const mongoose = require('mongoose');
+const fundTransfer = require('../models/fundTransfer');
 
 const db = "mongodb://localhost:27017/bank_appdb";
 mongoose.set('strictQuery', false); // this is to suppress some db error
@@ -66,7 +67,25 @@ router.get("/profile/:id", async(req, res) =>{
     }
 });
 
-// get current user account details/profile here..
+
+router.get("/income_details/:id", async (req, res) => {
+    let userId = req.params.id;
+    try {
+        const userTransacPending = await  TransferFund.aggregate([
+        { $match : { createdBy: userId } },
+        { $sort : {amount:-1}  },
+        {$group:{ _id:'$transac_nature', totalAmount: { $sum: '$amount' } }},
+    ]);
+    res.status(200).send(userTransacPending);
+   
+} catch (err) {
+    res.status(500).json(err.message);
+    console.log(err.message);
+}
+});
+
+
+// get delete single record here..
 router.get("/delete-history/:id", async(req, res) =>{
     let userId = req.params.id;
    try {
@@ -88,20 +107,42 @@ router.get("/delete-history/:id", async(req, res) =>{
     }
 });
 
-router.get("/income_details/:id", async (req, res) => {
-    let userId = req.params.id;
+    // delete multiple with checkbox here
+router.post('/history_delete', async(req, res) =>{
+    let arrayIds = req.body;
     try {
-        const userTransacPending = await  TransferFund.aggregate([
-        { $match : { createdBy: userId } },
-        { $sort : {amount:-1}  },
-        {$group:{ _id:'$transac_nature', totalAmount: { $sum: '$amount' } }},
-    ]);
-    res.status(200).send(userTransacPending);
-   
-} catch (err) {
+    // delete multiple record here
+    const result = await TransferFund.deleteMany({_id: { $in: arrayIds } });
+    res.status(200).send({msg: '200'});
+    
+    } catch (err) {
     res.status(500).json(err.message);
-    console.log(err.message);
 }
+});
+
+    // search for product with multiple condition here
+router.get('/product-search/:id', async(req, res) =>{
+        let searchValue = req.params.id;
+       try {
+        console.log(searchValue);
+
+        //searchResult = await fundTransfer.find({transac_nature: searchValue})
+        searchResult = await fundTransfer.find({
+            "$or": [
+                    //{amount: {$regex:req.params.id, $options: "i"}},
+                    {transac_nature:{$regex:req.params.id,$options: "i"}},
+                    {tran_type:{$regex:req.params.id, $options: "i"}},
+                    {bank_name:{$regex:req.params.id, $options: "i"}},
+                ]
+        })
+        
+        res.status(200).json(searchResult);
+
+        console.log(searchResult);
+        }catch (err) {
+        res.status(500).json(err.message);
+        }
+
 });
 
 module.exports = router;

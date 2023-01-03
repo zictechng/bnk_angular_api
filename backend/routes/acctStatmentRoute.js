@@ -37,8 +37,13 @@ router.get("/statement", async(req, res) =>{
 
 // get account history statement here..
 router.get("/history", async(req, res) =>{
+    const page = req.query.page * 1 || 1;
+    const limit = req.query.limit * 1 || 3;
+    const skip = (page - 1) * limit;
     try {
-        const acctStatement = await TransferFund.find().sort( { createdOn: -1 } );
+        const acctStatement = await TransferFund.find().sort( { createdOn: -1 } )
+        .skip(skip).limit(limit);
+        console.log();
         res.status(200).send(acctStatement);
     } catch (err) {
         res.status(500).json(err);
@@ -138,7 +143,7 @@ router.get('/product-search/:id', async(req, res) =>{
         
         res.status(200).json(searchResult);
 
-        console.log(searchResult);
+        //console.log(searchResult);
         }catch (err) {
         res.status(500).json(err.message);
         }

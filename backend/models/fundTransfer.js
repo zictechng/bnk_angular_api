@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const mongoosePaginate = require('mongoose-paginate-v2');
+
 const Schema = mongoose.Schema
 
 const transferSchema = new Schema({
@@ -14,6 +16,8 @@ const transferSchema = new Schema({
     transac_nature: String,
     tran_desc: String,
     trans_balance: Number,
+    tr_year: String,
+    colorcode: String,
     createdBy: String,
     transaction_status:{
         type: String, default: 'Pending'
@@ -25,4 +29,5 @@ const transferSchema = new Schema({
     createdOn: {type: Date, default: Date.now},
 });
 
+transferSchema.plugin(mongoosePaginate)
 module.exports = mongoose.model('fundtransfer', transferSchema);

@@ -206,7 +206,7 @@ router.post("/form-data", async (req, res) => {
   try {
     let { fname, lname, email, phone, contact } = req.body;
     if (!fname || !lname || !email || !phone || !contact || !contact.length) {
-      res.status(404).json({ code: "400", msg: "Fields are required." }); // cot code reguired
+      res.status(404).json({ msg: "400"}); // Required some more data
       console.log("fields required");
     }
     else {

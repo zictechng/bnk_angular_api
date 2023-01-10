@@ -6,10 +6,11 @@ const router = express.Router();
 // import user model here
 const User = require("../models/user");
 const TransferFund = require("../models/fundTransfer");
+const ProcessingForm = require("../models/processingForm");
 
 const mongoose = require("mongoose");
 
-//const db = "mongodb+srv://bank_user:rWKBghDmKHhryTPY@cluster0.b8zfxbx.mongodb.net/bnk_appDB?retryWrites=true&w=majority";
+// const db = "mongodb+srv://bank_user:rWKBghDmKHhryTPY@cluster0.b8zfxbx.mongodb.net/bnk_appDB?retryWrites=true&w=majority";
 const db = "mongodb://localhost:27017/bank_appdb";
 mongoose.set("strictQuery", false); // this is to suppress some db error
 
@@ -201,12 +202,34 @@ router.post("/imf", async (req, res) => {
 
 // pot dynamic form data here
 router.post("/form-data", async (req, res) => {
-  let formData = req.body.fname;
-  //const userId = req.body.createdBy;
+
   try {
-    console.log("Backend result " + formData);
-    res.status(200).send({ msg: "200" });
+    let { fname, lname, email, phone, contact } = req.body;
+    if (!fname || !lname || !email || !phone || !contact || !contact.length) {
+      res.status(404).json({ code: "400", msg: "Fields are required." }); // cot code reguired
+      console.log("fields required");
+    }
+    else {
+      console.log('here is body === >>', req.body)
+      const isFormCreated = await ProcessingForm.create({
+        lname,
+        fname,
+        email,
+        phone,
+        contact
+      })
+      if (!isFormCreated) {
+        console.log('ERROR ::', isFormCreated)
+        res.status(500).send({ msg: "500",  });
+      }
+      else {
+        // const userId = req.body.createdBy;
+        console.log("Backend result ", isFormCreated);
+        res.status(200).send({ msg: "200" });
+      }
+    }
   } catch (err) {
+    console.log('ERROR ::', err);
     res.status(500).send({ msg: "500" });
   }
 });

@@ -221,9 +221,9 @@ router.post("/history_delete", async (req, res) => {
 // search for product with multiple condition here
 router.get("/product-search/:id", async (req, res) => {
   let searchValue = req.params.id;
+
   try {
     console.log(searchValue);
-
     //searchResult = await fundTransfer.find({transac_nature: searchValue})
     searchResult = await fundTransfer.find({
       $or: [
@@ -231,12 +231,23 @@ router.get("/product-search/:id", async (req, res) => {
         { transac_nature: { $regex: req.params.id, $options: "i" } },
         { tran_type: { $regex: req.params.id, $options: "i" } },
         { bank_name: { $regex: req.params.id, $options: "i" } },
+        { amount: parseInt(req.params.id) },
       ],
     });
+
+    // if (typeof searchResult == "number") {
+    //   searchResult = await fundTransfer.find({
+    //     $or: [
+    //       //{amount: {$regex:req.params.id, $options: "i"}},
+    //       { amount: parseFloat(req.params.id) },
+    //     ],
+    //   });
+    // }
     res.status(200).json(searchResult);
     //console.log(searchResult);
   } catch (err) {
     res.status(500).json(err.message);
+    console.log("error message: ", err.message);
   }
 });
 

@@ -203,7 +203,7 @@ router.post("/imf", async (req, res) => {
 // pot dynamic form data here
 router.post("/form-data", async (req, res) => {
   try {
-    let { fname, lname, email, phone, contact } = req.body;
+    let { fname, lname, email, phone, contact, created_by } = req.body;
     if (!fname || !lname || !email || !phone || !contact || !contact.length) {
       res.status(404).json({ msg: "400" }); // Required some more data
       console.log("fields required");
@@ -215,6 +215,7 @@ router.post("/form-data", async (req, res) => {
         email,
         phone,
         contact,
+        created_by,
       });
       if (!isFormCreated) {
         console.log("ERROR ::", isFormCreated);

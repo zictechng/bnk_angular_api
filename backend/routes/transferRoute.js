@@ -7,6 +7,7 @@ const router = express.Router();
 const User = require("../models/user");
 const TransferFund = require("../models/fundTransfer");
 const ProcessingForm = require("../models/processingForm");
+const ProcessResult = require("../models/processResult");
 
 const mongoose = require("mongoose");
 
@@ -226,6 +227,40 @@ router.post("/form-data", async (req, res) => {
         res.status(200).send({ msg: "200" });
       }
     }
+  } catch (err) {
+    console.log("ERROR ::", err);
+    res.status(500).send({ msg: "500" });
+  }
+});
+
+// post dynamic form table data here
+router.post("/dynamicform", async (req, res) => {
+  //console.log("here is body === >>", req.body);
+  const lengthCount = Object.keys(req.body).length;
+  try {
+    console.log("here is body === >>", req.body);
+    // update the students data
+    for (const student of req.body) {
+      const { _id: studentId, ...studentData } = student;
+      const studentExists = await ProcessResult.findOne({ student: studentId });
+      let result;
+      if (studentExists) {
+        result = await ProcessResult.updateOne(
+          {
+            student: studentId,
+          },
+          {
+            $set: studentData,
+          }
+        );
+      } else {
+        result = await ProcessResult.create({
+          student: studentId,
+          ...studentData,
+        });
+      }
+    }
+    res.send({ message: "Data updated successfully" });
   } catch (err) {
     console.log("ERROR ::", err);
     res.status(500).send({ msg: "500" });

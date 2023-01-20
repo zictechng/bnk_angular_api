@@ -221,9 +221,8 @@ router.post("/history_delete", async (req, res) => {
 // search for product with multiple condition here
 router.get("/product-search/:id", async (req, res) => {
   let searchValue = req.params.id;
-
   try {
-    console.log(searchValue);
+    //console.log(searchValue);
     //searchResult = await fundTransfer.find({transac_nature: searchValue})
     searchResult = await fundTransfer.find({
       $or: [

@@ -228,7 +228,7 @@ router.post("/login", (req, res) => {
 // get student details here..
 router.get("/fetch_students", async (req, res) => {
   try {
-    const acct_student = await Student.find().sort({ reg_number: -1 }).limit(3);
+    const acct_student = await Student.find().sort({ reg_number: -1 }).limit(2);
     if (!acct_student) {
       console.log("ERROR :: No record found");
       res.status(404).send({ msg: "404" });

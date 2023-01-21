@@ -240,27 +240,6 @@ router.post("/dynamicform", async (req, res) => {
   try {
     console.log("here is body === >>", req.body);
     // update the students data
-    for (const student of req.body) {
-      const { _id: studentId, ...studentData } = student;
-      const studentExists = await ProcessResult.findOne({ student: studentId });
-      let result;
-      if (studentExists) {
-        result = await ProcessResult.updateOne(
-          {
-            student: studentId,
-          },
-          {
-            $set: studentData,
-          }
-        );
-      } else {
-        result = await ProcessResult.create({
-          student: studentId,
-          ...studentData,
-        });
-      }
-    }
-    res.send({ message: "Data updated successfully" });
   } catch (err) {
     console.log("ERROR ::", err);
     res.status(500).send({ msg: "500" });

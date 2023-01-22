@@ -10,6 +10,7 @@ const ProcessingForm = require("../models/processingForm");
 const ProcessResult = require("../models/processResult");
 
 const mongoose = require("mongoose");
+const processResult = require("../models/processResult");
 
 // const db = "mongodb+srv://bank_user:rWKBghDmKHhryTPY@cluster0.b8zfxbx.mongodb.net/bnk_appDB?retryWrites=true&w=majority";
 const db = "mongodb://localhost:27017/bank_appdb";
@@ -240,6 +241,27 @@ router.post("/dynamicform", async (req, res) => {
   try {
     console.log("here is body === >>", req.body);
     // update the students data
+    const docs = req.body.map((_d) => {
+      let obj = {
+        student_reg: _d._id,
+        ca2_score: _d.ca2,
+        ca1_score: _d.ca1,
+        tca_score: _d.total_ca,
+        exam_score: _d.exam_score,
+        total_score: _d.g_total,
+        student_name: _d.name,
+        class_name: _d.student_class,
+        term_name: _d.term_name,
+        year_name: _d.year_name,
+        subject_name: _d.subject_name,
+        reg_code: _d.ref_code,
+        addedby: _d.addedby,
+      };
+      return obj;
+    });
+    const result = await processResult.insertMany(docs);
+    console.log(result);
+    res.status(200).send({ msg: "200" });
   } catch (err) {
     console.log("ERROR ::", err);
     res.status(500).send({ msg: "500" });

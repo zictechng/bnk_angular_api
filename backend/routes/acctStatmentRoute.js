@@ -6,7 +6,7 @@ const router = express.Router();
 // import user model here
 const User = require("../models/user");
 const TransferFund = require("../models/fundTransfer");
-
+const orderProcess = require("../models/orderProcess");
 const mongoose = require("mongoose");
 const fundTransfer = require("../models/fundTransfer");
 const { response } = require("express");
@@ -250,4 +250,13 @@ router.get("/product-search/:id", async (req, res) => {
   }
 });
 
+router.post("/order/create", async (req, res) => {
+  try {
+    let orderDetail = [...req.body];
+
+    const order = await orderProcess.insertMany(orderDetail);
+
+    res.status(200).json({ data: order });
+  } catch (error) {}
+});
 module.exports = router;

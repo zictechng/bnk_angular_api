@@ -253,10 +253,16 @@ router.get("/product-search/:id", async (req, res) => {
 router.post("/order/create", async (req, res) => {
   try {
     let orderDetail = [...req.body];
-
     const order = await orderProcess.insertMany(orderDetail);
-
-    res.status(200).json({ data: order });
-  } catch (error) {}
+    if (!order) {
+      console.log("ERROR ::", order);
+      res.status(503).send({ msg: "503" });
+    } else {
+      console.log("Success ::", order);
+      res.status(200).send({ msg: "200" });
+    }
+  } catch (err) {
+    res.status(500).send({ msg: "500" });
+  }
 });
 module.exports = router;

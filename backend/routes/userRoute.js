@@ -7,6 +7,7 @@ const multer = require("multer");
 const User = require("../models/user");
 const SupportTicket = require("../models/support");
 const Student = require("../models/student");
+const StudentResult = require("../models/processResult");
 
 const mongoose = require("mongoose");
 
@@ -109,7 +110,7 @@ router.post("/students", async (req, res) => {
         // student record failed to create
       } else {
         // const userId = req.body.createdBy;
-        console.log("Student created ", isFormCreated);
+        //console.log("Student created ", isFormCreated);
         res.status(200).send({ msg: "200" });
       }
     }
@@ -228,13 +229,56 @@ router.post("/login", (req, res) => {
 // get student details here..
 router.get("/fetch_students", async (req, res) => {
   try {
-    const acct_student = await Student.find().sort({ reg_number: -1 }).limit(2);
+    const acct_student = await Student.find().sort({ reg_number: -1 }).limit(4);
     if (!acct_student) {
       console.log("ERROR :: No record found");
       res.status(404).send({ msg: "404" });
       // student record failed to create
     } else {
       res.status(200).send(acct_student);
+    }
+  } catch (err) {
+    res.status(500).json(err);
+    console.log(err.message);
+  }
+});
+
+// get student details here..
+router.get("/fetch_studentsData", async (req, res) => {
+  try {
+    const result_student = await StudentResult.aggregate([
+      {
+        $group: {
+          _id: "$student_reg",
+          grand_total: {
+            $sum: "$total_score",
+          },
+          grand_total_rank: {
+            $sum: "$total_score",
+          },
+          student_reg: { $first: "$student_reg" },
+          tca_score: { $first: "$tca_score" },
+          exam_score: { $first: "$exam_score" },
+          total_score: { $first: "$total_score" },
+          student_name: { $first: "$student_name" },
+          student_reg: { $first: "$student_reg" },
+          class_name: { $first: "$class_name" },
+          term_name: { $first: "$term_name" },
+          year_name: { $first: "$year_name" },
+          subject_name: { $first: "$subject_name" },
+          reg_code: { $first: "$reg_code" },
+          addedby: { $first: "$addedby" },
+        },
+      },
+    ]);
+
+    if (!result_student) {
+      console.log("ERROR :: No record found");
+      res.status(404).send({ msg: "404" });
+      // student record failed to create
+    } else {
+      res.status(200).send(result_student);
+      console.log("result ::", result_student);
     }
   } catch (err) {
     res.status(500).json(err);

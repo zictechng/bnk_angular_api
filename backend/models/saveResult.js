@@ -4,8 +4,8 @@ const Schema = mongoose.Schema;
 
 const saveResultSchema = new Schema({
   exam_score: String,
-  total_ca: String,
-  final_total_score: String,
+  total_ca: Number,
+  final_total: Number,
   student_name: String,
   student_reg: String,
   class_name: String,
@@ -18,7 +18,7 @@ const saveResultSchema = new Schema({
     type: String,
     default: "Pending",
   },
-  rank_position: String,
+  stu_position: String,
   createdOn: { type: Date, default: Date.now },
 });
 

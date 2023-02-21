@@ -8,7 +8,7 @@ const User = require("../models/user");
 const SupportTicket = require("../models/support");
 const Student = require("../models/student");
 const StudentResult = require("../models/processResult");
-
+const SaveStudentPosition = require("../models/saveResult");
 const mongoose = require("mongoose");
 
 //const db = "mongodb+srv://bank_user:rWKBghDmKHhryTPY@cluster0.b8zfxbx.mongodb.net/bnk_appDB?retryWrites=true&w=majority";
@@ -278,11 +278,46 @@ router.get("/fetch_studentsData", async (req, res) => {
       // student record failed to create
     } else {
       res.status(200).send(result_student);
-      console.log("result ::", result_student);
+      //console.log("result ::", result_student);
     }
   } catch (err) {
     res.status(500).json(err);
     console.log(err.message);
+  }
+});
+
+// post dynamic form table data here
+router.post("/student-position", async (req, res) => {
+  //console.log("here is body === >>", req.body);
+  const lengthCount = Object.keys(req.body).length;
+  console.log(lengthCount);
+  console.log("This is body: ", req.body);
+  try {
+    console.log("here is body === >>", req.body);
+    // update the table variable data
+    const docs = req.body.map((_d) => {
+      let obj = {
+        student_reg: _d.student_reg,
+        student_name: _d.student_name,
+        class_name: _d.class_name,
+        term_name: _d.term_name,
+        year_name: _d.year_name,
+        subject_name: _d.subject_name,
+        total_ca: _d.tca_score,
+        exam_score: _d.exam_score,
+        stu_position: _d.grand_total,
+        final_total: _d.grand_total_rank,
+        reg_code: _d.reg_code,
+        addedby: _d.addedby,
+      };
+      return obj;
+    });
+    const saveResult = await SaveStudentPosition.insertMany(docs);
+    console.log(saveResult);
+    res.status(200).send({ msg: "200" });
+  } catch (err) {
+    console.log("ERROR ::", err);
+    res.status(500).send({ msg: "500" });
   }
 });
 

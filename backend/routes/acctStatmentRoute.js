@@ -9,6 +9,8 @@ const TransferFund = require("../models/fundTransfer");
 const orderProcess = require("../models/orderProcess");
 const mongoose = require("mongoose");
 const fundTransfer = require("../models/fundTransfer");
+const invoiceData = require("../models/processDynamicData");
+
 const { response } = require("express");
 
 const db = "mongodb://localhost:27017/bank_appdb";
@@ -263,6 +265,16 @@ router.post("/order/create", async (req, res) => {
     }
   } catch (err) {
     res.status(500).send({ msg: "500" });
+  }
+});
+
+// get invoice data details here..
+router.post("/create-invoice", async (req, res) => {
+  try {
+    res.status(200).send({ msg: "200" });
+  } catch (err) {
+    res.status(500).json(err);
+    console.log(err.message);
   }
 });
 module.exports = router;

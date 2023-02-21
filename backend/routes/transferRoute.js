@@ -207,7 +207,7 @@ router.post("/form-data", async (req, res) => {
   try {
     let { fname, lname, email, phone, contact, created_by } = req.body;
     if (!fname || !lname || !email || !phone || !contact || !contact.length) {
-      res.status(404).json({ msg: "400" }); // Required some more data
+      res.status(400).json({ msg: "400" }); // Required some more data
       console.log("fields required");
     } else {
       console.log("here is body === >>", req.body);
@@ -237,16 +237,18 @@ router.post("/form-data", async (req, res) => {
 // post dynamic form table data here
 router.post("/dynamicform", async (req, res) => {
   //console.log("here is body === >>", req.body);
+  let ca_total = 0;
   const lengthCount = Object.keys(req.body).length;
   try {
     console.log("here is body === >>", req.body);
-    // update the students data
+    // create students result data dynamically
     const docs = req.body.map((_d) => {
       let obj = {
         student_reg: _d._id,
         ca2_score: _d.ca2,
         ca1_score: _d.ca1,
-        tca_score: _d.total_ca,
+        //tca_score: _d.total_ca,
+        tca_score: _d.ca1 + _d.ca2,
         exam_score: _d.exam_score,
         total_score: _d.g_total,
         student_name: _d.name,

@@ -270,8 +270,41 @@ router.post("/order/create", async (req, res) => {
 
 // get invoice data details here..
 router.post("/create-invoice", async (req, res) => {
+  const lengthCount = Object.keys(req.body).length;
+  console.log(req.body.contact[0].ca1);
+
   try {
-    res.status(200).send({ msg: "200" });
+    let {
+      fname,
+      lname,
+      email,
+      phone,
+      contact,
+      ca1,
+      ca2,
+      ca3,
+      ca_total,
+      created_by,
+    } = req.body;
+    if (!fname || !lname || !email || !phone || !contact || !contact.length) {
+      res.status(400).json({ msg: "400" }); // Required some more data
+      console.log("fields required");
+    } else {
+      //console.log("here is body === >>", req.body);
+      const docs = req.body;
+      const result = await invoiceData.insertMany({
+        fname: req.body.fname,
+        lname: req.body.lname,
+        email: req.body.email,
+        phone: req.body.phone,
+        ca1: req.body.contact[0].ca1,
+        ca2: req.body.contact[0].ca2,
+        ca3: req.body.contact[0].ca3,
+        ca_total: req.body.contact[0].ca_total,
+        created_by: req.body.created_by,
+      });
+      res.status(200).send({ msg: "200" });
+    }
   } catch (err) {
     res.status(500).json(err);
     console.log(err.message);

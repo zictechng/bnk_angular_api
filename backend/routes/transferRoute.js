@@ -273,35 +273,12 @@ router.post("/dynamicform", async (req, res) => {
 
 // pos product search here...
 router.post("/search-pos", async (req, res) => {
-  //let searchValue = req.params.key;
   let searchValue = req.body;
   console.log(searchValue);
-  //const regx = new RegExp(searchValue);
+
   try {
-    // const query = [
-    //   {
-    //     $match: {
-    //       $or: [
-    //         {
-    //           product_name: {
-    //             $regex: regx,
-    //           },
-    //         },
-    //         { product_sale_price: parseInt(searchValue) },
-    //         {
-    //           product_code_number: {
-    //             $regex: regx,
-    //           },
-    //         },
-    //       ],
-    //     },
-    //   },
-    // ];
     const searchResult = await SearchProduct.find({
-      product_name: {
-        $regex: req.body.search_name.toLowerCase(),
-        $options: "i",
-      },
+      product_name: req.body.search_name,
     });
     //const searchResult = await SearchProduct.aggregate(query);
     if (!searchResult) {
@@ -316,5 +293,32 @@ router.post("/search-pos", async (req, res) => {
     console.log(err.message);
   }
 });
+
+// router.post("/search-pos", async (req, res) => {
+
+//   let searchValue = req.body;
+//   console.log(searchValue);
+
+//   try {
+
+//     const searchResult = await SearchProduct.find({
+//       product_name: {
+//         $regex: req.body.search_name.toLowerCase(),
+//         $options: "i",
+//       },
+//     });
+//     //const searchResult = await SearchProduct.aggregate(query);
+//     if (!searchResult) {
+//       console.log("ERROR :: No record found");
+//       res.status(404).send({ msg: "404" });
+//     } else {
+//       res.status(200).send(searchResult);
+//       //console.log("Result details :: ", searchResult);
+//     }
+//   } catch (err) {
+//     res.status(500).json(err);
+//     console.log(err.message);
+//   }
+// });
 
 module.exports = router;

@@ -14,6 +14,7 @@ const processingDynamicDataSchema = new Schema({
   ca3: Number,
   total_amt: Number,
   discount_amt: Number,
+
   status: {
     type: String,
     default: "Pending",

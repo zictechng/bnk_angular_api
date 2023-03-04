@@ -9,7 +9,7 @@ const processingFormSchema = new Schema({
   lname: String,
   email: String,
   phone: String,
-  contact: [{ ca1: String, ca2: String, ca3: String }],
+  contact: [{ ca1: Number, ca2: Number, ca3: Number, ca_total: Number }],
   created_by: { type: Schema.Types.ObjectId, ref: "user" }, // this will get the current user ID and save it
   // with the data when creating this details.
   createdOn: { type: Date, default: Date.now },

@@ -271,8 +271,7 @@ router.post("/order/create", async (req, res) => {
 // get invoice data details here..
 router.post("/create-invoice", async (req, res) => {
   const lengthCount = Object.keys(req.body).length;
-  console.log(req.body.contact[0].ca1);
-
+  const discount = 10; //percentage
   try {
     let {
       fname,
@@ -286,23 +285,32 @@ router.post("/create-invoice", async (req, res) => {
       ca_total,
       created_by,
     } = req.body;
-    if (!fname || !lname || !email || !phone || !contact || !contact.length) {
+    if (!fname || !lname || !email || !phone) {
       res.status(400).json({ msg: "400" }); // Required some more data
       console.log("fields required");
+      //console.log("Data lenght ", lengthCount);
     } else {
-      //console.log("here is body === >>", req.body);
-      const docs = req.body;
-      const result = await invoiceData.insertMany({
-        fname: req.body.fname,
-        lname: req.body.lname,
-        email: req.body.email,
-        phone: req.body.phone,
-        ca1: req.body.contact[0].ca1,
-        ca2: req.body.contact[0].ca2,
-        ca3: req.body.contact[0].ca3,
-        ca_total: req.body.contact[0].ca_total,
-        created_by: req.body.created_by,
+      //console.log(req.body);
+      const contact = req.body.contact;
+
+      const docs = req.body.contact.map((element) => {
+        let total_amt = +element.ca1 + +element.ca2 + +element.ca3;
+        // if (element.ca1 == "" || element.ca1 == null) {
+        //   res.status(400).json({ msg: "400" });
+        //   console.log("CA1 fields required");
+        // }
+        return {
+          fname: req.body.fname,
+          lname: req.body.lname,
+          email: req.body.email,
+          phone: req.body.phone,
+          ...element,
+          total_amt: total_amt,
+          discount_amt: total_amt - (total_amt * discount) / 100,
+        };
       });
+      //console.log("Data lenght ", req.body.contact);
+      const result = await invoiceData.insertMany(docs);
       res.status(200).send({ msg: "200" });
     }
   } catch (err) {

@@ -9,6 +9,8 @@ const SupportTicket = require("../models/support");
 const Student = require("../models/student");
 const StudentResult = require("../models/processResult");
 const SaveStudentPosition = require("../models/saveResult");
+const AddNewProduct = require("../models/buyProduct");
+const salesProduct = require("../models/salesProduct");
 const mongoose = require("mongoose");
 
 //const db = "mongodb+srv://bank_user:rWKBghDmKHhryTPY@cluster0.b8zfxbx.mongodb.net/bnk_appDB?retryWrites=true&w=majority";
@@ -290,10 +292,10 @@ router.get("/fetch_studentsData", async (req, res) => {
 router.post("/student-position", async (req, res) => {
   //console.log("here is body === >>", req.body);
   const lengthCount = Object.keys(req.body).length;
-  console.log(lengthCount);
-  console.log("This is body: ", req.body);
+  //console.log(lengthCount);
+  //console.log("This is body: ", req.body);
   try {
-    console.log("here is body === >>", req.body);
+    //console.log("here is body === >>", req.body);
     // update the table variable data
     const docs = req.body.map((_d) => {
       let obj = {
@@ -313,7 +315,7 @@ router.post("/student-position", async (req, res) => {
       return obj;
     });
     const saveResult = await SaveStudentPosition.insertMany(docs);
-    console.log(saveResult);
+    //console.log(saveResult);
     res.status(200).send({ msg: "200" });
   } catch (err) {
     console.log("ERROR ::", err);
@@ -321,4 +323,122 @@ router.post("/student-position", async (req, res) => {
   }
 });
 
+// route register new product here
+router.post("/add-product", async (req, res) => {
+  //console.log(req.body);
+  const userId = req.body.tick_createdBy;
+  try {
+    let productDetails = await AddNewProduct.findOne({
+      product_code_number: req.body.product_code,
+    }); // here I am checking if product code exist then I will show error
+
+    if (productDetails) {
+      res.status(400).send({ msg: "400" });
+      // student reg number alread exist show error
+    } else if (
+      req.body.product_name == "" ||
+      req.body.sale_price == "" ||
+      req.body.product_qty == "" ||
+      req.body.product_code == null ||
+      req.body.product_code == ""
+    ) {
+      res.status(403).send({ msg: "403" }); // All fields are required
+      console.log("fields required");
+    } else if (!productDetails) {
+      const isFormCreated = await AddNewProduct.create({
+        product_name: req.body.product_name,
+        product_description: req.body.product_desc,
+        product_category: req.body.product_category,
+        product_cost_price: req.body.cost_price,
+        product_sale_price: req.body.sale_price,
+        product_qty: req.body.product_qty,
+        product_code_number: req.body.product_code,
+        product_expiration_date: req.body.expire_date,
+        product_buy_date: req.body.buy_date,
+        reg_code: req.body.reg_code,
+        addedby: req.body.user_createdBy,
+      });
+      if (!isFormCreated) {
+        console.log("ERROR ::", isFormCreated);
+        res.status(503).send({ msg: "503" });
+        // student record failed to create
+      } else {
+        // const userId = req.body.createdBy;
+        //console.log("Student created ", isFormCreated);
+        res.status(200).send({ msg: "200" });
+      }
+    }
+  } catch (err) {
+    res.status(500).send({ msg: "500" });
+  }
+});
+
+//
+// search for product with multiple condition here
+AddNewProduct.createIndexes({
+  product_name: "text",
+  product_sale_price: "text",
+  product_code_number: "text",
+});
+router.get("/fetch_product/:key", async (req, res) => {
+  let searchValue = req.params.key;
+  const regx = new RegExp(searchValue);
+
+  try {
+    // const query = [{ $match: { $text: { $search: searchValue } } }];
+    const query = [
+      {
+        $match: {
+          $or: [
+            {
+              product_name: {
+                $regex: regx,
+              },
+            },
+            { product_sale_price: parseInt(searchValue) },
+            {
+              product_code_number: {
+                $regex: regx,
+              },
+            },
+          ],
+        },
+      },
+    ];
+
+    // const searchProduct = await AddNewProduct.find(query);
+    const searchProduct = await AddNewProduct.aggregate(query);
+
+    // const searchProduct = await AddNewProduct.find({
+    //   product_name: searchValue,
+    // });
+    // const searchProduct = await AddNewProduct.aggregate({
+    //   $match: {
+    //     $or: [{ product_name: searchValue }, { product_category: searchValue }],
+    //   },
+    // });
+
+    if (!searchProduct) {
+      console.log("ERROR :: No record found");
+      res.status(404).send({ msg: "404" });
+      // student record failed to create
+    } else {
+      res.status(200).send(searchProduct);
+    }
+  } catch (err) {
+    res.status(500).json(err);
+    console.log(err.message);
+  }
+});
+
+router.post("/checkout", async (req, res) => {
+  const response = await salesProduct.insertMany(req.body);
+
+  if (!response) {
+  } else {
+    res.status(200).send(response);
+  }
+});
+
+// pos product search here
 module.exports = router;

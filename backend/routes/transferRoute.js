@@ -11,6 +11,7 @@ const ProcessResult = require("../models/processResult");
 
 const mongoose = require("mongoose");
 const processResult = require("../models/processResult");
+const SearchProduct = require("../models/buyProduct");
 
 // const db = "mongodb+srv://bank_user:rWKBghDmKHhryTPY@cluster0.b8zfxbx.mongodb.net/bnk_appDB?retryWrites=true&w=majority";
 const db = "mongodb://localhost:27017/bank_appdb";
@@ -210,7 +211,7 @@ router.post("/form-data", async (req, res) => {
       res.status(400).json({ msg: "400" }); // Required some more data
       console.log("fields required");
     } else {
-      console.log("here is body === >>", req.body);
+      //console.log("here is body === >>", req.body);
       const isFormCreated = await ProcessingForm.create({
         lname,
         fname,
@@ -224,7 +225,7 @@ router.post("/form-data", async (req, res) => {
         res.status(500).send({ msg: "500" });
       } else {
         // const userId = req.body.createdBy;
-        console.log("Backend result ", isFormCreated);
+        //console.log("Backend result ", isFormCreated);
         res.status(200).send({ msg: "200" });
       }
     }
@@ -240,7 +241,7 @@ router.post("/dynamicform", async (req, res) => {
   let ca_total = 0;
   const lengthCount = Object.keys(req.body).length;
   try {
-    console.log("here is body === >>", req.body);
+    //console.log("here is body === >>", req.body);
     // create students result data dynamically
     const docs = req.body.map((_d) => {
       let obj = {
@@ -250,7 +251,7 @@ router.post("/dynamicform", async (req, res) => {
         //tca_score: _d.total_ca,
         tca_score: _d.ca1 + _d.ca2,
         exam_score: _d.exam_score,
-        total_score: _d.g_total,
+        total_score: +_d.ca1 + _d.ca2 + +_d.exam_score,
         student_name: _d.name,
         class_name: _d.student_class,
         term_name: _d.term_name,
@@ -267,6 +268,52 @@ router.post("/dynamicform", async (req, res) => {
   } catch (err) {
     console.log("ERROR ::", err);
     res.status(500).send({ msg: "500" });
+  }
+});
+
+// pos product search here...
+router.post("/search-pos", async (req, res) => {
+  //let searchValue = req.params.key;
+  let searchValue = req.body;
+  console.log(searchValue);
+  //const regx = new RegExp(searchValue);
+  try {
+    // const query = [
+    //   {
+    //     $match: {
+    //       $or: [
+    //         {
+    //           product_name: {
+    //             $regex: regx,
+    //           },
+    //         },
+    //         { product_sale_price: parseInt(searchValue) },
+    //         {
+    //           product_code_number: {
+    //             $regex: regx,
+    //           },
+    //         },
+    //       ],
+    //     },
+    //   },
+    // ];
+    const searchResult = await SearchProduct.find({
+      product_name: {
+        $regex: req.body.search_name.toLowerCase(),
+        $options: "i",
+      },
+    });
+    //const searchResult = await SearchProduct.aggregate(query);
+    if (!searchResult) {
+      console.log("ERROR :: No record found");
+      res.status(404).send({ msg: "404" });
+    } else {
+      res.status(200).send(searchResult);
+      //console.log("Result details :: ", searchResult);
+    }
+  } catch (err) {
+    res.status(500).json(err);
+    console.log(err.message);
   }
 });
 

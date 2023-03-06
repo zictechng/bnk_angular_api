@@ -380,6 +380,7 @@ AddNewProduct.createIndexes({
   product_sale_price: "text",
   product_code_number: "text",
 });
+
 router.get("/fetch_product/:key", async (req, res) => {
   let searchValue = req.params.key;
   const regx = new RegExp(searchValue);

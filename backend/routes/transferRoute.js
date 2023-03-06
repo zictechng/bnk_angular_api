@@ -274,19 +274,19 @@ router.post("/dynamicform", async (req, res) => {
 // pos product search here...
 router.post("/search-pos", async (req, res) => {
   let searchValue = req.body;
-  console.log(searchValue);
-
   try {
     const searchResult = await SearchProduct.find({
       product_name: req.body.search_name,
     });
+    console.log(searchResult);
+
     //const searchResult = await SearchProduct.aggregate(query);
     if (!searchResult) {
       console.log("ERROR :: No record found");
       res.status(404).send({ msg: "404" });
     } else {
       res.status(200).send(searchResult);
-      //console.log("Result details :: ", searchResult);
+      // console.log("Result details :: ", searchResult);
     }
   } catch (err) {
     res.status(500).json(err);

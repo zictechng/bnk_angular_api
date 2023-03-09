@@ -325,7 +325,7 @@ router.post("/student-position", async (req, res) => {
 
 // route register new product here
 router.post("/add-product", async (req, res) => {
-  //console.log(req.body);
+  console.log(req.body);
   const userId = req.body.tick_createdBy;
   try {
     let productDetails = await AddNewProduct.findOne({

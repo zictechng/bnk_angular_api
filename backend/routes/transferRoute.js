@@ -12,6 +12,7 @@ const ProcessResult = require("../models/processResult");
 const mongoose = require("mongoose");
 const processResult = require("../models/processResult");
 const SearchProduct = require("../models/buyProduct");
+const ItemOrderProduct = require("../models/itemsOrder");
 
 // const db = "mongodb+srv://bank_user:rWKBghDmKHhryTPY@cluster0.b8zfxbx.mongodb.net/bnk_appDB?retryWrites=true&w=majority";
 const db = "mongodb://localhost:27017/bank_appdb";
@@ -274,11 +275,18 @@ router.post("/dynamicform", async (req, res) => {
 // pos product search here...
 router.post("/search-pos", async (req, res) => {
   let searchValue = req.body;
+  console.log(searchValue);
   try {
     const searchResult = await SearchProduct.find({
       product_name: req.body.search_name,
     });
-    console.log(searchResult);
+    // const searchResult = await SearchProduct.filter(
+    //   (product) =>
+    //     product.product_name
+    //       .toLowerCase()
+    //       .includes(req.body.search_name.toLowerCase()) == true
+    // );
+    //console.log(searchResult);
 
     //const searchResult = await SearchProduct.aggregate(query);
     if (!searchResult) {
@@ -286,12 +294,46 @@ router.post("/search-pos", async (req, res) => {
       res.status(404).send({ msg: "404" });
     } else {
       res.status(200).send(searchResult);
-      // console.log("Result details :: ", searchResult);
+      //console.log("Result details :: ", searchResult);
     }
   } catch (err) {
     res.status(500).json(err);
     console.log(err.message);
   }
+});
+
+// pos item order data saving here...
+router.post("/item_order", async (req, res) => {
+  let itemValue = req.body;
+  console.log(itemValue);
+  try {
+    const checkOrderItem = await ItemOrderProduct.find({
+      _id: req.body._id,
+    });
+    if (searchResult) {
+      console.log("ERROR :: Order exist");
+      res.status(404).send({ msg: "404" });
+    } else {
+      // save the data here
+
+      // then query the database here and send result to frontend
+      res.status(200).send(searchResult);
+    }
+  } catch (err) {
+    res.status(500).json(err);
+    console.log(err.message);
+  }
+});
+
+// pos2 product search here...
+router.post("/fetchpos", async (req, res) => {
+  let payload = req.body.payload;
+  let search = await SearchProduct.find({
+    product_name: { $regex: new RegExp("^" + payload + ".*", "i") },
+  });
+  //limit search result to 10 here...
+  search = search.slice(0, 10); // optional anyway
+  res.send({ payload: search });
 });
 
 // router.post("/search-pos", async (req, res) => {

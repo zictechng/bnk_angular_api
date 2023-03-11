@@ -336,6 +336,12 @@ router.post("/fetchpos", async (req, res) => {
   res.send({ payload: search });
 });
 
+// post dynamic data and saving here...
+router.post("/dynamic_data", async (req, res) => {
+  let dataValue = req.body;
+  console.log(dataValue);
+});
+
 // router.post("/search-pos", async (req, res) => {
 
 //   let searchValue = req.body;

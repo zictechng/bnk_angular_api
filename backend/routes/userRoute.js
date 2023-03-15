@@ -12,6 +12,11 @@ const SaveStudentPosition = require("../models/saveResult");
 const AddNewProduct = require("../models/buyProduct");
 const salesProduct = require("../models/salesProduct");
 const mongoose = require("mongoose");
+const fs = require("fs");
+const mime = require("mime");
+const OnlineProduct = require("../models/productImages");
+
+// parse application/x-www-form-urlencoded
 
 //const db = "mongodb+srv://bank_user:rWKBghDmKHhryTPY@cluster0.b8zfxbx.mongodb.net/bnk_appDB?retryWrites=true&w=majority";
 const db = "mongodb://localhost:27017/bank_appdb";
@@ -25,7 +30,7 @@ mongoose.connect(db, (err) => {
     console.log("database connected to mongodb");
   }
 });
-
+router.use(express.urlencoded({ extended: true }));
 // route 1
 router.get("/", (req, res) => {
   res.send("From backend api call");
@@ -194,6 +199,88 @@ router.post("/upload", upload.single("file"), async (req, res, next) => {
   }
 });
 
+// upload product multiple images here...
+
+router.post("/upload_thumb", upload.array("files"), async (req, res, next) => {
+  const file = req.files; // coming from client request
+  const filter = { _id: req.body.user_id };
+  //console.log(file);
+  try {
+    const userID = await User.findOne({ _id: req.body.user_id });
+    if (!userID) {
+      res.status(402).send({ msg: "402" });
+      // user account not found then show error
+    } else if (!file) {
+      res.status(404).send({ msg: "404" }); // cot code reguired
+      return next(error);
+    }
+    // here is for updating image record in db
+    // const updateUserPotoDoc = {
+    //   $set: {
+    //     photo: "/images/" + file.filename,
+    //   },
+    // };
+    // const result = await OnlineProduct.updateOne(filter, updateUserPotoDoc);
+
+    // get the selected dynamic image here to save independently.
+    const docs2 = req.files.map((channel) => {
+      let image_name = channel.filename;
+      let location = channel.destination;
+      let image_path = channel.path;
+      return {
+        product_photo: "/images/" + image_name,
+        product_image_des: location,
+        product_image_path: image_path,
+        product_name: "Product Name",
+        product_id: "Product ID",
+        addedby: req.body.user_id,
+        product_reg_id: req.body.reg_code,
+      };
+    });
+
+    //save the images dynamically here;
+    const result = await OnlineProduct.insertMany(docs2);
+    //console.log("Result details: ", file[5]);
+    //const result2 = await DynamicDataInsert.insertMany(docs2); //
+    res.status(200).send({ msg: "200" });
+  } catch (err) {
+    res.status(500).send({ msg: "500" });
+  }
+
+  // const images = [];
+  // if (Array.isArray(req.files)) {
+  //   for (let a = 0; a < req.files.length; a++) {
+  //     images.push(req.files[a]);
+  //     console.log("Result images: ", req.files);
+  //   }
+  // } else {
+  //   images.push(req.files);
+  // }
+
+  // fs.writeFileSync(
+  //   "public/images/" + Date.now() + "filename.jpeg",
+  //   base64Data,
+  //   "base64",
+  //   function (err, data) {
+  //     if (err) {
+  //       console.log("err", err);
+  //     }
+  //     console.log("data ", data);
+  //   }
+  // );
+});
+
+//upload multiple images testing here..
+router.post("/multiplefiles", upload.array("files"), async (req, res, next) => {
+  const files = req.files;
+  //const filter = { _id: req.body.user_id };
+  if (!files) {
+    res.status(404).send({ msg: "404" }); // no file selected
+    return next(error);
+  }
+  console.log(req.files);
+  res.status(200).send({ msg: "200" });
+});
 //login route
 router.post("/login", (req, res) => {
   let userData = req.body;

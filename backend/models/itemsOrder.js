@@ -10,6 +10,7 @@ const itemsOrderSchema = new Schema({
   product_total_amt: Number,
   product_id: String,
   reg_code: String,
+  product_order_id: String,
   addedby: String,
   product_status: {
     type: String,

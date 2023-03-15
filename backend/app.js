@@ -13,7 +13,7 @@ const acctStatementRoute = require("./routes/acctStatmentRoute");
 const app = express();
 
 app.use(cors());
-
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // Function to serve all static files

@@ -13,6 +13,8 @@ const mongoose = require("mongoose");
 const processResult = require("../models/processResult");
 const SearchProduct = require("../models/buyProduct");
 const ItemOrderProduct = require("../models/itemsOrder");
+const DynamicDataInsert = require("../models/saveDynamicData");
+const ItemOrderInsert = require("../models/itemsOrder");
 
 // const db = "mongodb+srv://bank_user:rWKBghDmKHhryTPY@cluster0.b8zfxbx.mongodb.net/bnk_appDB?retryWrites=true&w=majority";
 const db = "mongodb://localhost:27017/bank_appdb";
@@ -272,13 +274,13 @@ router.post("/dynamicform", async (req, res) => {
   }
 });
 
-// pos product search here...
+// get the pos product with the ID pass from search form here...
 router.post("/search-pos", async (req, res) => {
   let searchValue = req.body;
   console.log(searchValue);
   try {
     const searchResult = await SearchProduct.find({
-      product_name: req.body.search_name,
+      _id: req.body.search_name,
     });
     // const searchResult = await SearchProduct.filter(
     //   (product) =>
@@ -293,7 +295,29 @@ router.post("/search-pos", async (req, res) => {
       console.log("ERROR :: No record found");
       res.status(404).send({ msg: "404" });
     } else {
-      res.status(200).send(searchResult);
+      //console.log("Result details :: ", searchResult);
+
+      const docs = searchResult.map((_d) => {
+        let obj = {
+          product_name: _d.product_name,
+          product_sale_price: _d.product_sale_price,
+          product_id: _d._id,
+          product_qty: 1,
+          product_order_id: req.body.order_id,
+          reg_code: _d.reg_code,
+          addedby: req.body.user_id,
+        };
+        return obj;
+      });
+      const result = await ItemOrderInsert.insertMany(docs);
+      console.log("Order added: ", result);
+
+      // get the order add
+      const orderAdd = await ItemOrderInsert.find({
+        product_order_id: req.body.order_id,
+      });
+
+      res.status(200).send(orderAdd);
       //console.log("Result details :: ", searchResult);
     }
   } catch (err) {
@@ -339,7 +363,106 @@ router.post("/fetchpos", async (req, res) => {
 // post dynamic data and saving here...
 router.post("/dynamic_data", async (req, res) => {
   let dataValue = req.body;
-  console.log(dataValue);
+  //console.log(dataValue);
+  let dynamicType = req.body.title_name;
+  try {
+    let { shipp_sender_name, shipp_sender_email } = req.body;
+    if (!shipp_sender_name || !shipp_sender_email) {
+      res.status(400).json({ msg: "400" }); // Required some more data
+      console.log("fields required");
+      //console.log("Data lenght ", lengthCount);
+    } else {
+      //console.log(req.body);
+      const contact = req.body.contact;
+      let multipleData = req.body.selectedCarsName;
+
+      const docs = req.body.contact.map((element) => {
+        // let total_amt = +element.ca1 + +element.ca2 + +element.ca3;
+        // if (element.ca1 == "" || element.ca1 == null) {
+        //   res.status(400).json({ msg: "400" });
+        //   console.log("CA1 fields required");
+        // }
+        return {
+          sender_name: req.body.shipp_sender_name,
+          type_name: req.body.shipp_type,
+          sender_email: req.body.shipp_sender_email,
+          company_phone: req.body.comp_phone,
+          ...element,
+          comp_dynamic: req.body.title_name,
+
+          addedby: req.body.created_by._id,
+        };
+      });
+
+      // for loop type here...
+      // for (let x = 0; x < dynamicType.length; x++) {
+      //   console.log("this is for loop: ", { title_name: dynamicType[x] });
+      // }
+
+      // for for-of loop here as es type function
+      // for (const channels of dynamicType) {
+      //   console.log("this is for for-of result: ", channels);
+
+      // }
+
+      // create the selected dynamic data here to save independently.
+      const docs2 = dynamicType.map((channel) => {
+        return {
+          title_name: channel,
+          sender_name: req.body.shipp_sender_name,
+          type_name: req.body.shipp_type,
+          sender_email: req.body.shipp_sender_email,
+          comp_phone: req.body.comp_phone,
+          addedby: req.body.created_by._id,
+        };
+      });
+
+      //save other details here;
+      const result = await DynamicDataInsert.insertMany(docs);
+
+      const result2 = await DynamicDataInsert.insertMany(docs2); // save the dynamic selected data here
+
+      //console.log("this is for foreach loop type: ", result2);
+      res.status(200).send({ msg: "200" });
+    }
+  } catch (err) {
+    res.status(500).json(err);
+    console.log(err.message);
+  }
+
+  // How to iterate through a JavaScript object and get the values in the object
+  //  for (key in multipleData){
+  //   console.log(key) // this get the key names
+  //   console.log(multipleData[key]); // this get the values assigned to the keys
+  //  }
+
+  //Step 1
+
+  // How to iterate through a JavaScript object and push value into array
+  // let dataArry = [];
+  //  for (key in multipleData){
+  // let entryData = [];
+  // entryData.push(key);
+  // entryData.push(multipleData[key]);
+  // dataArry.push(entryData)
+  //   console.log(dataArry); // this get the values assigned to the keys
+  //  }
+
+  //Step 2
+  // const dataArray = Object.entries(multipleData);
+  // console.log(dataArray); // this will covert it to array of datas
+  // // if you just need the value only you can do it like this
+  // const dataArray2 = Object.values(multipleData);
+  // console.log(dataArray2);
+
+  // const dataArray3 = Object.keys(multipleData); // this will show the key
+  // console.log(dataArray3);
+
+  // you can manipute the result with this method
+  // // const dataArray5 = Object.entries(multipleData);
+  // for (i=0; i<dataArray.length; i++){
+  //   console.log(dataArray5[i]);
+  // } // this will allowed you iterate through and do what you want on it
 });
 
 // router.post("/search-pos", async (req, res) => {

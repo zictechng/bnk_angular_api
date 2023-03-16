@@ -15,6 +15,7 @@ const SearchProduct = require("../models/buyProduct");
 const ItemOrderProduct = require("../models/itemsOrder");
 const DynamicDataInsert = require("../models/saveDynamicData");
 const ItemOrderInsert = require("../models/itemsOrder");
+const SaveSaleOrder = require("../models/salesProduct");
 
 // const db = "mongodb+srv://bank_user:rWKBghDmKHhryTPY@cluster0.b8zfxbx.mongodb.net/bnk_appDB?retryWrites=true&w=majority";
 const db = "mongodb://localhost:27017/bank_appdb";
@@ -277,20 +278,12 @@ router.post("/dynamicform", async (req, res) => {
 // get the pos product with the ID pass from search form here...
 router.post("/search-pos", async (req, res) => {
   let searchValue = req.body;
-  console.log(searchValue);
+  //console.log(searchValue);
   try {
     const searchResult = await SearchProduct.find({
       _id: req.body.search_name,
     });
-    // const searchResult = await SearchProduct.filter(
-    //   (product) =>
-    //     product.product_name
-    //       .toLowerCase()
-    //       .includes(req.body.search_name.toLowerCase()) == true
-    // );
-    //console.log(searchResult);
 
-    //const searchResult = await SearchProduct.aggregate(query);
     if (!searchResult) {
       console.log("ERROR :: No record found");
       res.status(404).send({ msg: "404" });
@@ -310,7 +303,7 @@ router.post("/search-pos", async (req, res) => {
         return obj;
       });
       const result = await ItemOrderInsert.insertMany(docs);
-      console.log("Order added: ", result);
+      //console.log("Order added: ", result);
 
       // get the order add
       const orderAdd = await ItemOrderInsert.find({
@@ -463,6 +456,99 @@ router.post("/dynamic_data", async (req, res) => {
   // for (i=0; i<dataArray.length; i++){
   //   console.log(dataArray5[i]);
   // } // this will allowed you iterate through and do what you want on it
+});
+
+// post order data and saving here...
+router.post("/save-order", async (req, res) => {
+  let dataValue = req.body;
+  console.log("Data from UI: ", dataValue);
+
+  try {
+    //   // create the selected dynamic data here to save independently.
+    const docs = dataValue.map((channel) => {
+      let alltotal = channel.gtotal;
+      let orderAmt = channel.product_total_amt;
+      return {
+        product_name: channel.product_name,
+        product_sale_price: channel.product_sale_price,
+        product_qty: channel.product_qty,
+        product_total_amt: channel.product_qty * channel.product_sale_price,
+        product_all_total_amt: channel.product_all_total_amt,
+        reg_code: channel.reg_code,
+        addedby: channel.addedby,
+        product_id: channel._id,
+        product_invoice_id: channel.product_order_id,
+      };
+    });
+
+    //   //save other details here;
+    const result = await SaveSaleOrder.insertMany(docs);
+
+    //   //const result2 = await DynamicDataInsert.insertMany(docs2); // save the dynamic selected data here
+
+    console.log("Result Saved: ", result);
+    res.status(200).send({ msg: "200" });
+  } catch (err) {
+    res.status(500).json(err);
+    console.log(err.message);
+  }
+
+  //  for (key in multipleData){
+  //   console.log(key) // this get the key names
+  //   console.log(multipleData[key]); // this get the values assigned to the keys
+  //  }
+
+  //Step 1
+
+  // How to iterate through a JavaScript object and push value into array
+  // let dataArry = [];
+  //  for (key in multipleData){
+  // let entryData = [];
+  // entryData.push(key);
+  // entryData.push(multipleData[key]);
+  // dataArry.push(entryData)
+  //   console.log(dataArry); // this get the values assigned to the keys
+  //  }
+
+  //Step 2
+  // const dataArray = Object.entries(multipleData);
+  // console.log(dataArray); // this will covert it to array of datas
+  // // if you just need the value only you can do it like this
+  // const dataArray2 = Object.values(multipleData);
+  // console.log(dataArray2);
+
+  // const dataArray3 = Object.keys(multipleData); // this will show the key
+  // console.log(dataArray3);
+
+  // you can manipute the result with this method
+  // // const dataArray5 = Object.entries(multipleData);
+  // for (i=0; i<dataArray.length; i++){
+  //   console.log(dataArray5[i]);
+  // } // this will allowed you iterate through and do what you want on it
+});
+
+//remove order from pre-order list here
+// get delete single record here..
+router.get("/delet_order/:id", async (req, res) => {
+  let userId = req.params.id;
+  console.log("record ID Pass: ", req.params.id);
+  try {
+    // find record by the post ID
+    const query = ItemOrderProduct.findOne({ _id: req.params.id });
+
+    // delete the record found here
+    const result = await ItemOrderProduct.deleteOne(query);
+
+    if (result.deletedCount === 1) {
+      res.status(200).send({ msg: "200" });
+    } else {
+      res.status(403).send({ msg: "403" });
+      console.log("No order matched the query id.");
+    }
+  } catch (err) {
+    res.status(500).json(err.message);
+    console.log(err.message);
+  }
 });
 
 // router.post("/search-pos", async (req, res) => {

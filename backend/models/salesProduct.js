@@ -10,6 +10,8 @@ const saleProductSchema = new Schema({
   product_qty: Number,
   product_total_amt: Number,
   product_all_total_amt: Number,
+  product_id: String,
+  product_invoice_id: String,
   product_discount_amt: {
     type: Number,
     default: 0,
